@@ -411,40 +411,40 @@ window.visualizeFrequencyData = ({canvas, analyserL, analyserR}) => {
   let bufferLength = analyserL.frequencyBinCount;
   let dataArray = new Uint8Array(bufferLength);
   function drawFreq() {
-    requestAnimationFrame(drawFreq);
-        analyserL.getByteFrequencyData(dataArray);
-        ctx.beginPath();
-        ctx.fillStyle = window.visualizerBackground;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        const barWidth = (canvas.width / bufferLength) * 2.5;
-        ctx.fillStyle = window.visualColorLeft;
-        for(let i = 0; i < bufferLength; i++) {
-          let fractionalVolume = dataArray[i]/255
-          let barHeight = fractionalVolume*canvas.height;
-          ctx.fillRect(
-            (barWidth + 1)*i,
-            canvas.height / 2,  
-            barWidth,
-            -barHeight/2
-          );
-        }
-        ctx.closePath();
-        ctx.beginPath();
-        analyserR.getByteFrequencyData(dataArray);
-        ctx.fillStyle = window.visualColorRight;
-        for(let i = 0; i < bufferLength; i++) {
-          let fractionalVolume = dataArray[i]/255
-          let barHeight = fractionalVolume*canvas.height;
-          ctx.fillRect(
-            (barWidth + 1)*i,
-            canvas.height/2,
-            barWidth,
-            barHeight/2
-          );
-        }
-        ctx.closePath();
-  }
-  drawFreq();
+      requestAnimationFrame(drawFreq);
+      analyserL.getByteFrequencyData(dataArray);
+      ctx.beginPath();
+      ctx.fillStyle = window.visualizerBackground;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const barWidth = (canvas.width / bufferLength) * 2.5;
+      ctx.fillStyle = window.visualColorLeft;
+      for(let i = 0; i < bufferLength; i++) {
+        let fractionalVolume = dataArray[i]/255
+        let barHeight = fractionalVolume*canvas.height;
+        ctx.fillRect(
+          (barWidth + 1)*i,
+          canvas.height / 2,  
+          barWidth,
+          -barHeight/2
+        );
+      }
+      ctx.closePath();
+      ctx.beginPath();
+      analyserR.getByteFrequencyData(dataArray);
+      ctx.fillStyle = window.visualColorRight;
+      for(let i = 0; i < bufferLength; i++) {
+        let fractionalVolume = dataArray[i]/255
+        let barHeight = fractionalVolume*canvas.height;
+        ctx.fillRect(
+          (barWidth + 1)*i,
+          canvas.height/2,
+          barWidth,
+          barHeight/2
+        );
+      }
+      ctx.closePath();
+    }
+    drawFreq();
 }
 
 window.sampleBuffers = {}
@@ -521,20 +521,20 @@ window.stop = async () => {
   await window.actx.close();
   await window.loadModule();
   window.displayInfo();
-  if ( document.getElementById("visualizer")) {
-    const canvas = document.getElementById("visualizer")
-    const context = canvas.getContext('2d')
-    context.fillStyle = window.visualizerBackground;
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    // window.visualizeTimeDomainData({canvas: document.getElementById("visualizer"), analyserL: window.analyserL, analyserR: window.analyserR});
-  }
-  if ( document.getElementById("freqVisualizer")) {
-    const canvas = document.getElementById("visualizer")
-    const context = canvas.getContext('2d')
-    context.fillStyle = window.visualizerBackground;
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    // window.visualizeFrequencyData({canvas: document.getElementById("freqVisualizer"), analyserL: window.analyserL, analyserR: window.analyserR});
-  }
+  // if ( document.getElementById("visualizer")) {
+  //   const canvas = document.getElementById("visualizer")
+  //   const context = canvas.getContext('2d')
+  //   context.fillStyle = window.visualizerBackground;
+  //   context.clearRect(0, 0, canvas.width, canvas.height);
+  //   // window.visualizeTimeDomainData({canvas: document.getElementById("visualizer"), analyserL: window.analyserL, analyserR: window.analyserR});
+  // }
+  // if ( document.getElementById("freqVisualizer")) {
+  //   const canvas = document.getElementById("visualizer")
+  //   const context = canvas.getContext('2d')
+  //   context.fillStyle = window.visualizerBackground;
+  //   context.clearRect(0, 0, canvas.width, canvas.height);
+  //   // window.visualizeFrequencyData({canvas: document.getElementById("freqVisualizer"), analyserL: window.analyserL, analyserR: window.analyserR});
+  // }
 }
 
 window.artsource = `

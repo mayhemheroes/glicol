@@ -366,6 +366,7 @@ window.encoder = new TextEncoder('utf-8');
 var {name, _} = detectBrowser();
 
 window.run = async (codeRaw) =>{
+  window.isGlicolRunning = true;
   let regex = /(##.*?#)/
   let parse = codeRaw.split(regex).filter(Boolean)
   let code = parse.map(str => {
@@ -397,10 +398,30 @@ window.run = async (codeRaw) =>{
     })
   }
 
-  if ( document.getElementById("visualizer")) {
-    window.visualizeTimeDomainData({canvas: document.getElementById("visualizer"), analyserL: window.analyserL, analyserR: window.analyserR});
-  }
-  if ( document.getElementById("freqVisualizer")) {
-    window.visualizeFrequencyData({canvas: document.getElementById("freqVisualizer"), analyserL: window.analyserL, analyserR: window.analyserR});
-  }
+  // scopeWorker.postMessage()
+  // if (!window.isGlicolRunning) {
+    let bufferLength = analyserL.fftSize;
+    let dataArray = new Uint8Array(bufferLength);
+    scopeWorker.postMessage({canvas: scopeCanvas, dataArray: dataArray}, [scopeCanvas])
+  // }
+ // if ( document.getElementById("visualizer")) {
+  //   window.visualizeTimeDomainData({canvas: document.getElementById("visualizer"), analyserL: window.analyserL, analyserR: window.analyserR});
+  // }
+  // if ( document.getElementById("freqVisualizer")) {
+  //   window.visualizeFrequencyData({canvas: document.getElementById("freqVisualizer"), analyserL: window.analyserL, analyserR: window.analyserR});
+  // }
 }
+
+const loadWorker = async () => {
+  window.scopeCanvas = document.getElementById('visualizer').transferControlToOffscreen();
+  let objURL;
+  await fetch(source+"scope-worker.js").then(
+    response => response.text()
+  ).then(text=>{
+    const blob = new Blob([text], {type: "application/javascript"});
+    objURL =  URL.createObjectURL(blob);
+  })
+  window.scopeWorker = await new Worker(objURL);
+}
+
+loadWorker()
