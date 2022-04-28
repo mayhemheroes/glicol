@@ -2,6 +2,57 @@ use proc_macro::{TokenStream};
 use quote::quote;
 use proc_macro2;
 
+#[proc_macro]
+pub fn handle_events(_item: TokenStream) -> TokenStream {
+    let gen = quote! {
+        {
+            let mut p1i = paras.into_inner();
+            let p: Vec<(GlicolPara, f32)> = p1i.next().unwrap().into_inner()
+            .map(|pair| {
+                let mut it = pair.as_str().split("@");
+                let value = GlicolPara::Number(
+                    it.next().unwrap().parse::<f32>().unwrap());
+                let time_str = it.next().unwrap();
+                let time;
+                if time_str.contains("ms") {
+                    time = time_str.parse::<f32>().unwrap();
+                } else {
+                    time = time_str.replace("s", "").parse::<f32>().unwrap();
+                }
+                (value, time)
+            }).collect();
+            chain_paras.push(vec![GlicolPara::Event(p)])
+        }
+    };
+    gen.into()
+}
+
+#[proc_macro]
+pub fn handle_pattern(_item: TokenStream) -> TokenStream {
+    let gen = quote! {
+        {
+            let mut p1i = paras.into_inner();
+            
+            let p: Vec<(GlicolPara, f32)> = p1i.next().unwrap().into_inner()
+            .map(|pair| {
+                let mut it = pair.as_str().split("@");
+                let value = GlicolPara::Number(
+                    it.next().unwrap().parse::<f32>().unwrap());
+                // safe, at detected on parser
+                let time = it.next().unwrap().parse::<f32>().unwrap();
+                (value, time)
+            }).collect();
+            // println!("{:?}", p1i.next().unwrap());
+            let span = match p1i.next() {
+                Some(r) => r.as_str().parse::<f32>().unwrap(),
+                None => 1.0
+            };
+            chain_paras.push(vec![GlicolPara::Pattern(p, span)])
+        }
+    };
+    gen.into()
+}
+
 
 #[proc_macro]
 pub fn one_para_number_or_ref(item: TokenStream) -> TokenStream {

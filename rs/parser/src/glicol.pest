@@ -7,6 +7,10 @@ node = ${ (psampler|mix|seq|choose|mul|add|sin|saw|squ|tri|pan|speed|noise|onepo
 sp|constsig|lpf|rhpf|onepole|imp|delayn|delayms|envperc|apfmsgain|plate|sendpass|
 get|bd|sn|hh|meta|sawsynth|squsynth|trisynth|balance|adc|pattern_synth|msgsynth|adsr) }
 
+// -----------------------------------------
+// define the rules for node below
+// -----------------------------------------
+
 psampler = ${"psampler" ~ WHITESPACE+ ~ (pattern|event)}
 msgsynth = ${("msgsynth"|"msg_synth") ~ (WHITESPACE+ ~ !node_name ~ symbol) ~ (WHITESPACE+ ~ !node_name ~ number) ~ (WHITESPACE+ ~ !node_name ~ number)}
 pattern_synth = ${("psynth"|"p_synth"|"pattern_synth") ~ WHITESPACE+ ~ code ~ (WHITESPACE+ ~ !node_name ~ number)? }
@@ -44,7 +48,7 @@ sawsynth = ${"sawsynth" ~ WHITESPACE+ ~ !(node_name | reference) ~ number ~ WHIT
 squsynth = ${"squsynth" ~ WHITESPACE+ ~ !(node_name | reference) ~ number ~ WHITESPACE+ ~ !(node_name | reference) ~ number }
 trisynth = ${"trisynth" ~ WHITESPACE+ ~ !(node_name | reference) ~ number ~ WHITESPACE+ ~ !(node_name | reference) ~ number }
 add = ${"add" ~ WHITESPACE+ ~ !node_name ~ (number | reference) }
-sin = ${"sin" ~ WHITESPACE+ ~ !node_name ~ ( number | reference) }
+sin = ${"sin" ~ WHITESPACE+ ~ ( freq | note_symbol | reference | pattern) }
 saw = ${"saw" ~ WHITESPACE+ ~ !node_name ~ (number | reference) }
 squ = ${"squ" ~ WHITESPACE+ ~ !node_name ~ (number | reference) }
 tri = ${"tri" ~ WHITESPACE+ ~ !node_name ~ (number | reference) }
@@ -58,20 +62,31 @@ noise = ${("noiz"|"noise") ~ WHITESPACE+ ~ number}
 sp = ${("sp"|"sampler") ~ WHITESPACE+ ~ !( node_name | reference | number ) ~ symbol }
 // paras = ${  float | symbol | seq | reference}
 
+
+// -----------------------------------------
+// define the rules for params below
+// -----------------------------------------
+
+
+freq = ${ ("+")? ~ ASCII_DIGIT+ ~ "."? ~ ASCII_DIGIT* ~ "hz"? }
+note_symbol = ${ ("\\" ~ ASCII_DIGIT+ ~ "n") | ("'"~ ASCII_DIGIT+ ~ "n" ~ "'")}
+
+// note_type = ("8n"|"16n"|"32n"|"4n"|"2n")
+
 event = ${ "\"" ~ pattern_event_body ~ "\""}
 pattern = ${ "\"" ~ pattern_event_body ~ "\"" ~ "(" ~ number? ~ ")"}
 pattern_event_body = ${ WHITESPACE* ~value_time ~ (WHITESPACE+ ~ value_time)* }
 value_time = ${(number|symbol) ~ "@" ~ (number)}
 
 number = ${ float | integer}
-float = ${ (("+" | "-")? ~ ASCII_DIGIT+) ~ "." ~ ASCII_DIGIT* ~ (^"e" ~ integer)? }
+float = ${ ("+" | "-")? ~ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT* ~ (^"e" ~ integer)? }
 symbol = ${ ("'"~ (ASCII_ALPHANUMERIC | "_" | "-")+ ~ "'") | ("\\" ~ (ASCII_ALPHANUMERIC | "_"|"-")+)  }
 
 compound_notes = @{ compound ~ (WHITESPACE+ ~ compound)*}
 compound = ${ note+ }
 note = ${ integer | rest | note_ref }
 note_ref = ${ "~" ~  ASCII_ALPHA_LOWER }
-reference = ${ ("~"|"_")? ~ ASCII_ALPHA_LOWER+ ~ ("_" | ASCII_ALPHA_LOWER | ASCII_DIGIT )* ~ loose_match? }
+reference = ${ !node_name ~ ("~"|"_")? ~ ASCII_ALPHA_LOWER+ ~ ("_" | ASCII_ALPHA_LOWER | ASCII_DIGIT )* ~ loose_match? }
 loose_match = ${".."}
 rest = ${ "_" }
 integer = ${ (ASCII_DIGIT)+ ~ !"." }
