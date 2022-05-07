@@ -1,3 +1,6 @@
+// as glicol uses whitespace as an active seperater, we need to use $ everywhere
+// https://pest.rs/book/grammars/syntax.html#atomic
+
 block = ${ SOI ~ ("\n"|WHITESPACE)* ~ ( (line|comment) ~ WHITESPACE* ~ ";"? ~ WHITESPACE* ~ ("\n" ~ WHITESPACE*)* )* ~ EOI}
 comment = _{ "//" ~ (!NEWLINE ~ ANY)* ~ NEWLINE* ~ !NEWLINE}
 line = ${ reference ~ WHITESPACE* ~ ":" ~ WHITESPACE* ~ chain}
@@ -6,6 +9,8 @@ chain = ${ node ~ (WHITESPACE* ~ "\n"? ~ WHITESPACE* ~ ">>" ~ WHITESPACE* ~ node
 node = ${ (psampler|mix|seq|choose|mul|add|sin|saw|squ|tri|pan|speed|noise|onepole|
 sp|constsig|lpf|rhpf|onepole|imp|delayn|delayms|envperc|apfmsgain|plate|sendpass|
 get|bd|sn|hh|meta|sawsynth|squsynth|trisynth|balance|adc|pattern_synth|msgsynth|adsr) }
+
+// node defination: name + parameters
 
 psampler = ${"psampler" ~ WHITESPACE+ ~ (pattern|event)}
 msgsynth = ${("msgsynth"|"msg_synth") ~ (WHITESPACE+ ~ !node_name ~ symbol) ~ (WHITESPACE+ ~ !node_name ~ number) ~ (WHITESPACE+ ~ !node_name ~ number)}
@@ -44,19 +49,20 @@ sawsynth = ${"sawsynth" ~ WHITESPACE+ ~ !(node_name | reference) ~ number ~ WHIT
 squsynth = ${"squsynth" ~ WHITESPACE+ ~ !(node_name | reference) ~ number ~ WHITESPACE+ ~ !(node_name | reference) ~ number }
 trisynth = ${"trisynth" ~ WHITESPACE+ ~ !(node_name | reference) ~ number ~ WHITESPACE+ ~ !(node_name | reference) ~ number }
 add = ${"add" ~ WHITESPACE+ ~ !node_name ~ (number | reference) }
-sin = ${"sin" ~ WHITESPACE+ ~ !node_name ~ ( number | reference) }
+sin = ${"sin" ~ ws+ ~ freq ~ ws+ ~ phase? }
 saw = ${"saw" ~ WHITESPACE+ ~ !node_name ~ (number | reference) }
 squ = ${"squ" ~ WHITESPACE+ ~ !node_name ~ (number | reference) }
 tri = ${"tri" ~ WHITESPACE+ ~ !node_name ~ (number | reference) }
 pan = ${"pan" ~ WHITESPACE+ ~ !node_name ~ (number | reference) }
 constsig = ${("sig"|"constsig") ~ WHITESPACE+ ~ !node_name ~ ( number | pattern | event ) }
 onepole = ${"onepole" ~ WHITESPACE+ ~ !node_name ~ ( number | reference) }
-
-// single float
 speed = ${"speed" ~ WHITESPACE+ ~ number}
 noise = ${("noiz"|"noise") ~ WHITESPACE+ ~ number}
 sp = ${("sp"|"sampler") ~ WHITESPACE+ ~ !( node_name | reference | number ) ~ symbol }
-// paras = ${  float | symbol | seq | reference}
+
+// parameter definition
+freq = ${!node_name ~ (number|reference) ~ ("@freq")?}
+phase = ${ (number) ~ ("@phase")?}
 
 event = ${ "\"" ~ pattern_event_body ~ "\""}
 pattern = ${ "\"" ~ pattern_event_body ~ "\"" ~ "(" ~ number? ~ ")"}
@@ -75,6 +81,7 @@ reference = ${ ("~"|"_")? ~ ASCII_ALPHA_LOWER+ ~ ("_" | ASCII_ALPHA_LOWER | ASCI
 loose_match = ${".."}
 rest = ${ "_" }
 integer = ${ (ASCII_DIGIT)+ ~ !"." }
+ws = _{" "|","|"|"|"\t"}
 WHITESPACE = _{" "|","|"|"|"\t"}
 
 node_name = ${"adsr"|"sig"|"psampler"|"synth"|"msgsynth"|"psynth"|"p_synth"|"pattern_synth"|
