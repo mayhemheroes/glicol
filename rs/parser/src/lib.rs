@@ -403,6 +403,29 @@ pub fn get_ast(code: &str) -> Result<GlicolAst, Error<Rule>> {
                                         }
                                         chain_paras.push(paras)
                                     },
+                                    Rule::arrange => {
+                                        println!("node {:?}", node.as_str()); //"sin 440"
+                                        let paras = node.into_inner().next().unwrap();
+                                        println!("paras {:?}", paras.as_str());//"440"                                        
+                                        chain_node_names.push("arrange");
+
+                                        match paras.as_rule() {
+                                            Rule::event => {
+                                                let mut p1i = paras.into_inner();
+                                                let p: Vec<(GlicolPara, f32)> = p1i.next().unwrap().into_inner()
+                                                .map(|pair| {
+                                                    let mut it = pair.as_str().split("@");
+                                                    let value = GlicolPara::Symbol(
+                                                        it.next().unwrap().to_owned());
+
+                                                    let bar = it.next().unwrap().parse::<f32>().unwrap();
+                                                    (value, bar)
+                                                }).collect();
+                                                chain_paras.push(vec![GlicolPara::Event(p)])
+                                            }
+                                            _ => {}
+                                        }
+                                    },
                                     _ => unimplemented!()
                                 }
                             }
