@@ -4,7 +4,7 @@ line = ${ reference ~ WHITESPACE* ~ ":" ~ WHITESPACE* ~ chain}
 chain = ${ node ~ (WHITESPACE* ~ "\n"? ~ WHITESPACE* ~ ">>" ~ WHITESPACE* ~ node)*  }
 
 node = ${ (psampler|mix|seq|choose|mul|add|sin|saw|squ|tri|pan|speed|noise|onepole|
-sp|constsig|lpf|rhpf|onepole|imp|delayn|delayms|envperc|apfmsgain|plate|sendpass|
+sp|constsig|lpf|rhpf|onepole|imp|delayms2|delayn2|delayn|delayms|envperc|apfmsgain|plate|sendpass|
 get|bd|sn|hh|meta|sawsynth|squsynth|trisynth|balance|adc|pattern_synth|msgsynth|adsr) }
 
 psampler = ${"psampler" ~ WHITESPACE+ ~ (pattern|event)}
@@ -26,7 +26,9 @@ sendpass = ${ "sendpass" ~ WHITESPACE+ ~ reference ~ (WHITESPACE+ ~ reference)*}
 plate = ${"plate" ~ WHITESPACE+ ~ !(node_name | reference) ~ number}
 envperc = ${"envperc" ~ WHITESPACE+ ~ !(node_name | reference) ~ number ~ WHITESPACE+ ~ !(node_name | reference ) ~ number  }
 delayn = ${"delayn" ~ WHITESPACE+ ~ !node_name ~ (number | reference) }
-delayms = ${"delayms" ~ WHITESPACE+ ~ !node_name ~ (number | reference) }
+delayn2 = ${"delayn2" ~ WHITESPACE+ ~ !node_name ~ (number | reference) }
+delayms = ${"delayms" ~ delayms_hyperparams? ~ WHITESPACE+ ~ !node_name ~ (number | reference) }
+delayms2 = ${"delayms2" ~ WHITESPACE+ ~ !node_name ~ (number | reference) }
 seq = ${ "seq" ~ WHITESPACE+ ~ compound_notes }
 
 adsr = ${"adsr" ~ WHITESPACE+ ~ !node_name ~ (number ) ~ WHITESPACE+ ~ !node_name ~ (number ) ~ WHITESPACE+ ~ !node_name ~ (number ) ~ WHITESPACE+ ~ !node_name ~ (number )  }
@@ -57,6 +59,10 @@ speed = ${"speed" ~ WHITESPACE+ ~ number}
 noise = ${("noiz"|"noise") ~ WHITESPACE+ ~ number}
 sp = ${("sp"|"sampler") ~ WHITESPACE+ ~ !( node_name | reference | number ) ~ symbol }
 // paras = ${  float | symbol | seq | reference}
+
+delayms_hyperparams = ${"<"~ WHITESPACE* ~ channels ~ (WHITESPACE+ ~ maxdelay)? ~ ">"}
+channels = ${ integer }
+maxdelay = ${ number }
 
 event = ${ "\"" ~ pattern_event_body ~ "\""}
 pattern = ${ "\"" ~ pattern_event_body ~ "\"" ~ "(" ~ number? ~ ")"}

@@ -1,46 +1,40 @@
 use crate::{Buffer, Input, Node, BoxedNodeSend, NodeData, Message, impl_to_boxed_nodedata};
-use hashbrown::HashMap;
 use dasp_ring_buffer as ring_buffer;
-// use dasp_signal::{self as signal, Signal};
-// use dasp_interpolate::{
-    // Interpolator,
-    // sinc::Sinc,
-    // linear::Linear,
-// };
 type Fixed = ring_buffer::Fixed<Vec<f32>>;
-// type Bounded = ring_buffer::Bounded<Vec<f32>>;
-
-// enum RingBuffer {
-//     Fix(Fixed),
-//     Bound(Bounded)
-// }
+use hashbrown::HashMap;
 
 #[derive(Debug, Clone)]
 pub struct DelayMs2 {
     buf: Fixed,
     buf2: Fixed,
     sr: usize,
-    input_order: Vec<usize>
-    // delay_n: usize,
+    input_order: Vec<usize>,
+    delay_n: usize,
 }
 
 impl DelayMs2 {
     pub fn new() -> Self {
-        Self { buf: Fixed::from(vec![0.0]), buf2: Fixed::from(vec![0.0]), sr: 44100, input_order: vec![] }
+        Self {
+            buf: Fixed::from(vec![0.0]),
+            buf2: Fixed::from(vec![0.0]),
+            delay_n: 1,
+            sr: 44100,
+            input_order: vec![],
+        }
     }
     pub fn delay(self, delay: f32) -> Self {
-        let buf; let buf2; let delay_n;
-        if delay == 0.0 {
-            let maxdelay = 2.;
-            delay_n = (maxdelay / 1000. * self.sr as f32 ) as usize;
-            buf = Fixed::from(vec![0.0; delay_n]);
-            buf2 = Fixed::from(vec![0.0; delay_n]);
+        let buf;
+        let buf2;
+        let delay_n = (delay / 1000. * self.sr as f32) as usize;
+
+        if delay_n == 0 {
+            buf = Fixed::from(vec![0.0; 1]);
+            buf2 = Fixed::from(vec![0.0; 1]);
         } else {
-            delay_n = (delay / 1000. * self.sr as f32) as usize;
             buf = Fixed::from(vec![0.0; delay_n]);
             buf2 = Fixed::from(vec![0.0; delay_n]);
         };
-        Self { buf, buf2, ..self}
+        Self { buf, buf2, delay_n, ..self}
     }
     
     pub fn sr(self, sr:usize) -> Self {
@@ -54,11 +48,19 @@ impl DelayMs2 {
 impl<const N: usize> Node<N> for DelayMs2 {
     fn process(&mut self, inputs: &mut HashMap<usize, Input<N>>, output: &mut [Buffer<N>]) {
         match inputs.len() {
+            // input len == 1 means no modulation
             1 => {
                 let main_input = inputs.values_mut().next().unwrap();
-                for i in 0..N {
-                    output[0][i] = self.buf.push(main_input.buffers()[0][i]);
-                    // output[1][i] = self.buf2.push(main_input.buffers()[1][i]);
+                if self.delay_n == 0 {
+                    for i in 0..N {
+                        output[0][i] = main_input.buffers()[0][i];
+                    }
+                } else {
+                    for i in 0..N {
+                        output[0][i] = self.buf.push(main_input.buffers()[0][i]);
+                        // may panic!
+                        output[1][i] = self.buf2.push(main_input.buffers()[1][i]);
+                    }
                 }
             },
             2 => {

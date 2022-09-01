@@ -3,7 +3,7 @@ use glicol_synth::{
     filter::{ResonantLowPassFilter, ResonantHighPassFilter, OnePole, AllPassFilterGain},
     signal::{ConstSig, Impulse, Noise},
     operator::{Mul, Add},
-    delay::{DelayN, DelayMs},
+    delay::{DelayN, DelayMs, DelayMs2, DelayN2},
     sequencer::{Sequencer, Choose, Speed},
     envelope::{EnvPerc, Adsr},
     effect::{Plate, Balance},
@@ -369,6 +369,19 @@ pub fn makenode<const N: usize>(
                 }
             }
         },
+        "delayn2" => {
+            match &paras[0] {
+                GlicolPara::Number(v) => {
+                    (DelayN2::new(*v as usize).to_boxed_nodedata(2), vec![])
+                },
+                GlicolPara::Reference(s) => {
+                    (DelayN2::new(0).to_boxed_nodedata(2), vec![s.to_string()])
+                },
+                _ => {
+                    unimplemented!();
+                }
+            }
+        },
         "delayms" => {
             match &paras[0] {
                 GlicolPara::Number(v) => {
@@ -376,6 +389,19 @@ pub fn makenode<const N: usize>(
                 },
                 GlicolPara::Reference(s) => {
                     (DelayMs::new().sr(sr).delay(2000.).to_boxed_nodedata(2), vec![s.to_string()])
+                },
+                _ => {
+                    unimplemented!();
+                }
+            }
+        },
+        "delayms2" => {
+            match &paras[0] {
+                GlicolPara::Number(v) => {
+                    (DelayMs2::new().sr(sr).delay(*v).to_boxed_nodedata(2), vec![])
+                },
+                GlicolPara::Reference(s) => {
+                    (DelayMs2::new().sr(sr).delay(2000.).to_boxed_nodedata(2), vec![s.to_string()])
                 },
                 _ => {
                     unimplemented!();

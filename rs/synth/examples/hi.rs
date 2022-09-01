@@ -6,9 +6,9 @@ use glicol_synth::{
 };
 
 fn main() {
-    let mut context = AudioContextBuilder::<128>::new()
+    let mut context = AudioContextBuilder::<8>::new()
     .sr(44100)
-    .channels(1)
+    .channels(2)
     .build();
 
     let node_a = context.add_mono_node(SinOsc::new().freq(42.));

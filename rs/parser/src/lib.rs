@@ -50,7 +50,9 @@ pub fn get_ast(code: &str) -> Result<GlicolAst, Error<Rule>> {
                                 let node = node_pair.into_inner().next().unwrap();
                                 match node.as_rule() {
                                     Rule::delayn =>  one_para_number_or_ref!("delayn"),
+                                    Rule::delayn2 =>  one_para_number_or_ref!("delayn2"),
                                     Rule::delayms =>  one_para_number_or_ref!("delayms"),
+                                    Rule::delayms2 =>  one_para_number_or_ref!("delayms2"),
                                     Rule::imp =>  one_para_number_or_ref!("imp"),
                                     Rule::tri =>  one_para_number_or_ref!("tri"),
                                     Rule::squ => one_para_number_or_ref!("squ"),

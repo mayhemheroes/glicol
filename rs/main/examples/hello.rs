@@ -7,6 +7,9 @@ use glicol::Engine;
 fn main() {
     let mut engine = Engine::<32>::new();
     engine.update_with_code(r#"o: sin 440"#);
+    // engine.update_with_code(r#"~n: seq 1
+    // ~a: seq ~n _ _ _
+    // out: sin ~a"#);
     // engine.update_with_code(r#"// a sawtooth osc chained with a onepole filter
     // // the first meta is to write a saw manually
     // out: meta `

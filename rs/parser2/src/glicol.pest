@@ -1,0 +1,47 @@
+block = {SOI~ sentence+ ~EOI}
+sentence = {(signal_out|reference) ~ ":" ~ chain}
+chain = {node ~ ( ">>" ~ node)*}
+node = { sin | mul | seq | lpf}
+
+// meta node
+
+// sampler
+
+// compound node
+
+// env
+
+// seq takes optional hypeparams, midi and rest
+seq = ${ "seq" ~ seq_hype? ~ " "+ ~ notes+ }
+seq_hype = { "<" ~ ("speed" ~ ":")? ~ number ~ ("," ~ ("span" ~ ":")?~ number)? ~ ">" }
+notes = ${ (midi|rest|note_ref)+ }
+midi = {ASCII_DIGIT+}
+rest = {"_"} // this looks funny
+note_ref = { "~" ~ ASCII_ALPHA_LOWER }
+
+// sin osc
+sin = ${ "sin" ~ " "+ ~ sin_args }
+sin_hype = { "<" ~ ("phase" ~ ":")? ~ number ~ ">"}
+sin_args = { freq | reference | sin_multichan }
+sin_multichan = { "["~ (freq|reference)+ ~ "]"}
+freq = {number}
+
+// filters
+lpf = {("lpf" | "rlpf") ~ cutoff ~ q}
+hpf = {("hpf" | "rhpf") ~ cutoff ~ q}
+cutoff = { number }
+q = { number }
+
+// signal nodes
+
+// op nodes
+mul = {"mul" ~ (number | reference)}
+number = @{ASCII_DIGIT+ ~ "."? ~ ASCII_DIGIT* ~ !" " }
+
+reference = @{"~" ~ signal_out }
+signal_out = @{ !keywords ~ ASCII_ALPHA_LOWER ~ (ASCII_ALPHA_LOWER|"_"|ASCII_DIGIT)* }
+
+keywords = { "sin" | "mul" | "lpf" | "seq" }
+
+COMMENT = _{ ("/-" ~ (!"-/" ~ ANY)* ~ "-/" ) | ("//" ~ (!"\n" ~ ANY)* ) }
+WHITESPACE = _{" " | "\t" | "\n"}
