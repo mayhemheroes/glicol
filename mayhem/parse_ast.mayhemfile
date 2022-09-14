@@ -1,0 +1,7 @@
+project: glicol
+target: parse-ast
+
+cmds:
+  - cmd: /parse_ast
+  - cmd: /parse_ast_no_inst @@
+    libfuzzer: false
