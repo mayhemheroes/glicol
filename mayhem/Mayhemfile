@@ -1,0 +1,6 @@
+project: glicol
+target: parse-ast
+
+cmds:
+  - cmd: /mayhem/parse_ast
+    libfuzzer: true
